@@ -1,0 +1,183 @@
+body {
+    padding: 0;
+    margin: 0;
+    
+    text-align: center;
+    background: #fff url('../images/body_background.png') repeat-x right top;
+    
+    font-family: palatino, monospace, serif, verdana;
+}
+
+a {
+    text-decoration: none;
+}
+
+input.host {
+    width: 220px;
+}
+
+input.port {
+    width: 50px;
+}
+
+.stuff {
+    text-align: left;
+}
+
+/* Panel is per default "pinned" meaning that it:
+
+  - is visible  
+  - content is pushed vertically below it
+  
+*/
+.panel {
+    text-align: left;
+    width: 99%; /* TODO: room for improvement, this is done to avoid scroll-bar i certain situations.. */
+    background-color: #dceaf9;
+    
+    padding: 10px 5px 10px 5px;
+    border-bottom: 1px solid #AAD3FF;
+    
+    position: absolute;
+    z-index: 2;
+}
+
+.panel div {
+    display: inline;  
+}
+
+/* This style "unpins" the bar will sit on top of other
+  elements instead of pushing them below...
+  
+  the panel should be hidden when unpinned... othervise it hides part of
+  the desktop...
+*/
+.panel.unpinned {
+    position: absolute;
+    z-index: 1;
+}
+
+/*
+  This style will hide children of the panel og turn the panel
+  into a 1-pixel line for hovering to display the panel.
+*/
+.panel.hidden { padding:0; height: 0; } /* make the panel small */
+.panel.hidden div { display: none; }    /* hide the children */
+
+.panel.hidden:hover { padding: 10px 5px 10px 5px; height: 20px; } /* Restore panel-size */
+.panel.hidden:hover div { display: inline; } /* Show the children */
+
+.btn {
+    width: 75px;
+    
+    border: 1px solid #c5d0e8;
+    
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    
+    background-color: #f1f6fd ;
+    background-position: 5px 50%;
+    
+    padding: 5px 10px;
+    cursor: pointer;
+    
+    font-size: 11px;
+    font-weight: bold;
+    text-transform: uppercase;
+    
+    color: #3f5c90;
+}
+
+.btn:hover {
+    border-color: #b1bcdf #75819e #75819e #b1bcdf;
+    background-color: #e4ecf3;
+    color: #285dbb;
+}
+
+.info {
+    width: 100px;
+    border: 1px solid #c5d0e8;
+    
+    background-position: 5px 50%;
+    background-color: #fff;
+    padding: 5px;
+    
+    font-size: 11px;
+    padding: 5px 10px;
+}
+
+.info fieldset {
+    display: none;
+      
+    position: absolute;
+    z-index: 2;
+    
+    margin-left: -25px;
+    margin-top: 23px;
+    
+    border: 1px solid #c5d0e8;
+    background-color: #fff;
+}
+
+.info fieldset legend {
+    background-color: #fff;
+    padding: 2px;
+    border: 1px solid black;
+}
+
+.info:hover fieldset {
+    display: inline;
+}
+
+.icon {
+    background-image: url(../images/icons/bullet_black.png);
+    background-repeat: no-repeat;
+    padding-left: 24px;
+}
+
+.bullet_blue { background-image: url(../images/icons/bullet_blue.png); }
+.bullet_green { background-image: url(../images/icons/bullet_green.png); }
+.bullet_red { background-image: url(../images/icons/bullet_red.png); }
+.bullet_pink { background-image: url(../images/icons/bullet_pink.png); }
+
+.refresh { background-image: url(../images/icons/arrow_refresh.png); }
+.scale { background-image: url(../images/icons/arrow_inout.png); }
+.fullscreen { background-image: url(../images/icons/arrow_out.png); }
+.log { background-image: url(../images/icons/page_white_text.png); }
+
+.machine { background-image: url(../images/icons/server.png); }
+.connect { background-image: url(../images/icons/bullet_black.png); }
+.disconnect { background-image: url(../images/icons/cross.png); }
+
+.pin { background-image: url(../images/icons/lock.png); }
+.unpin { background-image: url(../images/icons/lock_open.png); }
+
+.connected { background-image: url(../images/icons/connect.png); }
+.disconnected { background-image: url(../images/icons/disconnect.png); }
+.unknown { background-image: url(../images/icons/disconnect.png); }
+
+.about { background-image: url(../images/icons/information.png); }
+.download { background-image: url(../images/icons/compress.png); }
+.documentation { background-image: url(../images/icons/page_white_text.png); }
+.demo { background-image: url(../images/icons/computer.png); }
+
+#frame_container {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    
+    z-index: 0;
+}
+
+#frame_container canvas {
+    position: absolute;
+    top:0;
+    bottom:0;
+    left:0;
+    right: 0;
+    margin:auto;
+}
+
+#log { width: 1024px; overflow: scroll; }
+
+/* Welcome stuff */

@@ -1,0 +1,170 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"> 
+<html xmlns="http://www.w3.org/1999/xhtml"> 
+<head>
+<title>jsVNC</title>
+<meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
+<script type="text/javascript" src="js/hobs.js"></script>
+<script type="text/javascript" src="js/jquery.js"></script>
+<script type="text/javascript" src="js/jquery.base64.js"></script>
+<script type="text/javascript" src="js/vnc.js"></script>
+<script type="text/javascript" src="js/fm_vnc.js"></script>
+<script type="text/javascript" src="js/gui.js"></script>
+<link rel="stylesheet" type="text/css" href="css/basic.css" media="screen" /> 
+</head>
+<body>
+
+  <div id="panel" class="panel">
+    <div id="pin"     class="btn icon pin"      title="Controls whether the panel should be visible.">Pin</div>
+    <div id="refresh" class="btn icon refresh"  title="Request a full display update.">Refresh</div>
+    <div id="scale"   class="btn icon scale"    title="Scale the display to fit in the current window.">Scale</div>
+
+    <div class="info icon log">  
+      <fieldset>    
+      <pre id="log"></pre>      
+      </fieldset>
+      
+      <span>Log</span>
+    </div>
+    <div id="more_log"></div>
+    &nbsp;  
+    
+    <div class="conn_info info icon disconnected">
+      
+      <fieldset>
+      
+      <table>
+        <tr><td>Bytes sent/recv</td><td><span class="bytes_sent">0</span>/<span id="bytes_recv">0</span></td></tr>
+        <tr><td>Messages sent/recv</td><td><span class="msgs_sent">0</span>/<span id="msgs_recv">0</span></td></tr>
+      </table>
+      </fieldset>
+      
+      <span class="status">Unknown</span>
+  
+    </div>
+    <div class="server_info info icon machine">
+      
+      <fieldset>
+        
+        <table>
+          <tr><td>Hostname</td><td><span class="hostname">Unknown</span></td></tr>
+          <tr><td>Resolution</td><td><span class="resolution">0x0</span></td></tr>
+          <tr><td>BPP</td><td><span class="bpp">Unknown</span></td></tr>
+          <tr><td>Color Depth</td><td><span class="depth">Unknown</span></td></tr>
+          <tr><td>Big Endian</td><td><span class="big_endian">Unknown</span></td></tr>
+          <tr><td>True Color</td><td><span class="truecolor">Unknown</span></td></tr>
+          <tr><td>RGB Max:</td><td>(<span class="red_max"></span>,<span class="green_max"></span>,<span class="blue_max"></span>)</td></tr>
+          <tr><td>RGB Shift:</td><td>(<span class="red_shift"></span>,<span class="green_shift"></span>,<span class="blue_shift"></span>)</td></tr>
+        </table> 
+      </fieldset>
+      
+      <span class="hostname">Unknown</span>
+    </div>
+
+    &nbsp;        
+    <div class="info">
+      
+      <fieldset>
+      
+        <table>
+          <tr>
+            <td>VNC Host/Port</td>
+            <td>
+            <input id="vnc_host" class="host" type="text" name="vnc_host" value="localhost"/>
+              / <input id="vnc_port" type="text" class="port" name="vnc_port" value="5900"/>
+            </td>
+          </tr>
+          <tr>
+            <td>WS Host/Port</td>
+            <td>
+                  <input id="ws_host"   class="host" type="text"  name="ws_host"    value="mifcho01"/>
+               /  <input id="ws_port"   type="text"  class="port" name="ws_port"    value="8000"/>
+               /  <input id="ws_peerid" type="text"  class="port" name="ws_peerid"  value="2222"/>
+            </td>
+          </tr>
+        </table>
+      
+      </fieldset>
+      
+      <span id="connection" class="btn icon">Connect</span>
+      
+    </div>
+  </div>
+
+<div id="frame_container">
+    <canvas id="vnc_canvas" width="800" height="600"></canvas>
+</div>
+
+<script type="text/javascript">
+
+$(document).ready(function(){
+    
+    //
+    // Grab parameters from the querystring
+    //
+    // Courtesy of:
+    // http://stackoverflow.com/questions/901115/get-querystring-values-with-jquery
+    // 
+    var urlParams = {};
+    (function () {
+        var e,
+            a = /\+/g,  // Regex for replacing addition symbol with a space
+            r = /([^&=]+)=?([^&]*)/g,
+            d = function (s) { return decodeURIComponent(s.replace(a, " ")); },
+            q = window.location.search.substring(1);
+    
+        while (e = r.exec(q))
+           urlParams[d(e[1])] = d(e[2]);
+    })();    
+    
+    //
+    // Connect immediatly or wait for user to click on "connect".
+    //
+    var immediate_connect = (urlParams['immediate'] && (urlParams['immediate'] == 1));
+    
+    //
+    // Grab nodes from urlParam nodes=mifcho01:8001,mifcho02:8002 etc.
+    // to array on the form:
+    // array(
+    //      {host: mifcho01, port: 8001},
+    //      {host: mifcho02, port: 8002},
+    //      {host: mifcho03, port: 8003},
+    // )
+    //
+    var nodes = new Array();
+    (function () {
+        var e,
+            r = /([a-z\.0-9]+):([0-9]+)/ig,
+            q = urlParams['mifcho'] ? urlParams['mifcho'] : '';
+        
+        while (e = r.exec(q))
+            nodes.push({host: e[1], port: e[2]});
+    })();
+    
+    if (nodes.length == 0) {        // Default value for mifcho nodes
+        nodes.push({host: 'localhost', port: 8000});
+    }
+    
+    if (!urlParams['peerid']) {     // Default value for peerid
+        urlParams['peerid'] = '';
+    }
+    
+    // Load connection form with options provided via urlParameters
+    $('#vnc_host').val(urlParams['vnc_host']);
+    $('#vnc_port').val(urlParams['vnc_port']);
+    $('#ws_host').val(nodes[0].host);
+    $('#ws_port').val(nodes[0].port);
+    $('#ws_peerid').val(urlParams['peerid']);
+        
+    var gui = VNCGui(nodes);        // Instanciate the gui
+
+    if (immediate_connect) {        // Connect!
+        gui.connect();
+    }
+
+});
+
+</script>
+
+</body>
+</html>
+

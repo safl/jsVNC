@@ -1,0 +1,50 @@
+#labels installation,setup,configuration
+= Configuring jsVNC with MIFCHO =
+
+This is a configuration-example of installing/configuring jsVNC with MIFCHO for the user 'jsvnc' on a linux machine.
+
+== Do the following ==
+
+{{{
+# Create a directory for jsvnc+mifcho
+cd ~
+mkdir jsenv
+cd jsenv
+
+# Download jsVNC
+svn export http://jsvnc.googlecode.com/svn/trunk/src/ jsvnc_src
+
+# Download MIFCHO
+wget "http://mifcho.googlecode.com/svn/trunk/dist/mifcho-0.1.tar.gz"
+tar xzf mifcho-0.1.tar.gz
+
+# Optionally
+
+}}}
+
+
+Create a configuration-file for MIFCHO named 'mifcho.conf' with the following content:
+
+{{{
+[General]
+
+bind=
+  tcp://0.0.0.0:8000
+
+orchestration =
+  8000 http /hobs HobsHandler
+  8000 http /wsocket WebsocketHandler
+  8000 http /jsvnc StaticWebHandler
+
+[StaticWebHandler]
+workers = 2
+path_prefix=/home/jsvnc/jsenv/jsvnc_src
+}}}
+
+== Run It ==
+
+{{{
+~/jsenv/mifcho-0.1/mifcho -c ~/jsenv/mifcho.conf -l ~/jsenv/mifcho.log
+}}}
+
+Navigate your browser: http://your_hostname:8000/jsvnc/vnc.html
